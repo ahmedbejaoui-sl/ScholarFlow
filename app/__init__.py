@@ -32,6 +32,8 @@ def create_app(config_class=Config):
     app.register_blueprint(main_bp)
     from app.routes.auth import auth_bp
     app.register_blueprint(auth_bp)
+    from app.routes.subjects import subjects_bp
+    app.register_blueprint(subjects_bp)
     # Pages d'erreur personnalisées
     def page_erreur(code, titre, message):
         return render_template("errors/erreur.html",

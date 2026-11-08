@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block titre %}Mes sujets{% endblock %}
+
+{% block contenu %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">Mes sujets</h1>
+    <a class="btn btn-primary" href="{{ url_for('subjects.nouveau') }}">Proposer un sujet</a>
+</div>
+
+{% set statuts = {
+    "en_attente": ("warning text-dark", "En attente de validation"),
+    "valide": ("success", "Validé"),
+    "modification": ("info text-dark", "Modification demandée"),
+    "refuse": ("danger", "Refusé")
+} %}
+
+{% if sujets %}
+<div class="table-responsive">
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>Titre</th>
+                <th>Niveau</th>
+                <th>Technologies</th>
+                <th>Statut</th>
+                <th class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in sujets %}
+            <tr>
+                <td>
+                    {{ s.titre }}
+                    {% if s.commentaire_admin %}
+                        <div class="small text-muted">Commission : {{ s.commentaire_admin }}</div>
+                    {% endif %}
+                </td>
+                <td>{{ s.niveau }}</td>
+                <td>{{ s.technologies or "-" }}</td>
+                <td>
+                    <span class="badge text-bg-{{ statuts[s.statut][0] }}">{{ statuts[s.statut][1] }}</span>
+                </td>
+                                <td class="text-end">
+                    {% if s.statut != "valide" %}
+                        <a class="btn btn-sm btn-outline-primary"
+                           href="{{ url_for('subjects.modifier', sujet_id=s.id) }}">Modifier</a>
+                        <form method="POST" class="d-inline"
+                              action="{{ url_for('subjects.supprimer', sujet_id=s.id) }}"
+                              onsubmit="return confirm('Supprimer ce sujet ?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Supprimer</button>
+                        </form>
+                    {% else %}
+                        <span class="text-muted small">Verrouillé</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-light border">
+    Vous n'avez encore proposé aucun sujet.
+    <a href="{{ url_for('subjects.nouveau') }}">Proposer votre premier sujet</a>.
+</div>
+{% endif %}
+{% endblock %}
