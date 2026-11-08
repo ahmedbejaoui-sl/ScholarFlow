@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -18,6 +19,10 @@ class Config:
     UPLOAD_FOLDER = os.path.join(BASE_DIR, "app", "static", "uploads")
     MAX_CONTENT_LENGTH = 10 * 1024 * 1024  # 10 Mo maximum
     ALLOWED_EXTENSIONS = {"pdf", "zip"}
+    # Règles des vœux
+    DATE_CLOTURE_VOEUX = datetime(2026, 11, 15, 23, 59)
+    MAX_VOEUX = 5   # nombre maximal de sujets dans la liste
+    MIN_VOEUX = 1   # nombre minimal pour pouvoir valider
 
 
 class TestConfig(Config):

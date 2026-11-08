@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block titre %}Mes vœux{% endblock %}
+
+{% block contenu %}
+{% set modifiable = ouverts and not valide %}
+
+<h1 class="h3 mb-2">Mes vœux</h1>
+<p class="text-muted">
+    Classez jusqu'à {{ max_voeux }} sujets par ordre de préférence : le premier est votre premier choix.
+    Clôture le <strong>{{ cloture.strftime('%d/%m/%Y à %H:%M') }}</strong>.
+</p>
+
+{% if not ouverts %}
+    <div class="alert alert-warning">La saisie des vœux est clôturée. Votre liste ne peut plus être modifiée.</div>
+{% elif valide %}
+    <div class="alert alert-success">
+        Votre liste est validée. Vous pouvez la rouvrir tant que la saisie n'est pas clôturée.
+    </div>
+{% endif %}
+
+{% if voeux %}
+<div class="table-responsive">
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>Rang</th>
+                <th>Sujet</th>
+                <th>Encadrant</th>
+                {% if modifiable %}<th class="text-end">Actions</th>{% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for v in voeux %}
+            <tr>
+                <td class="fw-semibold">{{ v.priorite }}</td>
+                <td><a href="{{ url_for('subjects.detail', sujet_id=v.sujet.id) }}">{{ v.sujet.titre }}</a></td>
+                <td>{{ v.sujet.encadrant.nom }}</td>
+                {% if modifiable %}
+                <td class="text-end text-nowrap">
+                    <form method="POST" class="d-inline" action="{{ url_for('wishes.deplacer', voeu_id=v.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="sens" value="haut">
+                        <button class="btn btn-sm btn-outline-secondary" {% if loop.first %}disabled{% endif %}>Monter</button>
+                    </form>
+                    <form method="POST" class="d-inline" action="{{ url_for('wishes.deplacer', voeu_id=v.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="sens" value="bas">
+                        <button class="btn btn-sm btn-outline-secondary" {% if loop.last %}disabled{% endif %}>Descendre</button>
+                    </form>
+                    <form method="POST" class="d-inline" action="{{ url_for('wishes.retirer', voeu_id=v.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="btn btn-sm btn-outline-danger">Retirer</button>
+                    </form>
+                </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="d-flex flex-wrap gap-2">
+    {% if modifiable %}
+    <form method="POST" action="{{ url_for('wishes.valider') }}"
+          onsubmit="return confirm('Valider votre liste de vœux ?');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-success">Valider mes vœux</button>
+    </form>
+    {% endif %}
+
+    {% if ouverts and valide %}
+    <form method="POST" action="{{ url_for('wishes.rouvrir') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-primary">Modifier ma liste</button>
+    </form>
+    {% endif %}
+
+    {% if ouverts %}
+    <form method="POST" action="{{ url_for('wishes.annuler') }}"
+          onsubmit="return confirm('Supprimer toute votre fiche de vœux ?');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-outline-danger">Annuler ma fiche</button>
+    </form>
+    {% endif %}
+</div>
+
+{% else %}
+<div class="alert alert-light border">
+    Votre liste est vide. Parcourez le <a href="{{ url_for('subjects.catalogue') }}">catalogue</a>
+    et ajoutez les sujets qui vous intéressent.
+</div>
+{% endif %}
+{% endblock %}

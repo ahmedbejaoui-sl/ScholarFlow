@@ -23,7 +23,12 @@
             <p>{{ sujet.technologies }}</p>
         {% endif %}
 
-        {# Le bouton « Ajouter à mes vœux » sera ajouté avec le module Vœux #}
+                {% if current_user.role == "etudiant" and sujet.statut == "valide" %}
+        <form method="POST" class="mt-4" action="{{ url_for('wishes.ajouter', sujet_id=sujet.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-primary">Ajouter à mes vœux</button>
+        </form>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

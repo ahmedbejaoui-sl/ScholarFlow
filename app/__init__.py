@@ -36,6 +36,8 @@ def create_app(config_class=Config):
     app.register_blueprint(subjects_bp)
     from app.routes.admin import admin_bp
     app.register_blueprint(admin_bp)
+    from app.routes.wishes import wishes_bp
+    app.register_blueprint(wishes_bp)
     # Pages d'erreur personnalisées
     def page_erreur(code, titre, message):
         return render_template("errors/erreur.html",

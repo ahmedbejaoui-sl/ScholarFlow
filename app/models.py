@@ -58,7 +58,15 @@ class Wish(db.Model):
     etudiant = db.relationship("User")
     sujet = db.relationship("Subject")
 
+class WishValidation(db.Model):
+    """Trace la validation définitive de la liste de vœux d'un étudiant."""
+    id = db.Column(db.Integer, primary_key=True)
+    etudiant_id = db.Column(db.Integer, db.ForeignKey("user.id"),
+                            unique=True, nullable=False)
+    date_validation = db.Column(db.DateTime, default=maintenant)
 
+    etudiant = db.relationship("User")
+    
 class Assignment(db.Model):
     """Affectation d'un sujet à un étudiant."""
     id = db.Column(db.Integer, primary_key=True)

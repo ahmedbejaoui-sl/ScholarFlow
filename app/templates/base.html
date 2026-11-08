@@ -24,7 +24,6 @@
                         <a class="nav-link" href="{{ url_for('main.accueil') }}">Accueil</a>
                     </li>
 
-                    {# NOUVEAU : lien Catalogue, pour tout utilisateur connecté #}
                     {% if current_user.is_authenticated %}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('subjects.catalogue') }}">Catalogue</a>
@@ -40,6 +39,13 @@
                     {% if current_user.is_authenticated and current_user.role == "admin" %}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('admin.validation_sujets') }}">Validation des sujets</a>
+                        </li>
+                    {% endif %}
+
+                    {# NOUVEAU : lien Mes vœux, réservé aux étudiants #}
+                    {% if current_user.is_authenticated and current_user.role == "etudiant" %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('wishes.mes_voeux') }}">Mes vœux</a>
                         </li>
                     {% endif %}
 
