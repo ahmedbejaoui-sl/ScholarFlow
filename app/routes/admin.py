@@ -1,9 +1,11 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import (Blueprint, Response, current_app, render_template,
+                   redirect, url_for, flash, request)
 
 from app import db
 from app.decorators import role_required
 from app.models import Subject
 from app.services import assignment_service as service
+from app.services import dashboard_service, export_service
 from app.services.assignment_service import AffectationError
 from app.services.wish_service import voeux_ouverts
 
@@ -127,3 +129,26 @@ def publier_affectations():
     except AffectationError as erreur:
         flash(str(erreur), "danger")
     return _retour_affectations()
+# ---------- Tableau de bord et export (F16, F17) ----------
+
+@admin_bp.route("/")
+@role_required("admin")
+def tableau_de_bord():
+    """Tableau de bord décisionnel (F17)."""
+    return render_template(
+        "admin/tableau_de_bord.html",
+        s=dashboard_service.statistiques(),
+        limite=current_app.config["DATE_LIMITE_DEPOT"],
+    )
+
+
+@admin_bp.route("/export.csv")
+@role_required("admin")
+def export_csv():
+    """Export CSV des affectations et des livrables (F16)."""
+    contenu = export_service.generer_csv()
+    return Response(
+        contenu.encode("utf-8-sig"),  # le BOM permet à Excel d'afficher correctement les accents
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment; filename=affectations_livrables.csv"},
+    )

@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block titre %}Tableau de bord{% endblock %}
+
+{% block contenu %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">Tableau de bord</h1>
+    <a class="btn btn-outline-primary" href="{{ url_for('admin.export_csv') }}">Exporter en CSV</a>
+</div>
+
+<div class="row g-4 mb-5">
+    <div class="col-md-6 col-lg-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <p class="text-muted mb-1">Sujets validés</p>
+                <p class="display-6 mb-1">{{ s.sujets_valides }}</p>
+                <p class="small text-muted mb-0">{{ s.sujets_en_attente }} en attente de décision</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <p class="text-muted mb-1">Étudiants affectés</p>
+                <p class="display-6 mb-1">{{ s.affectes }} / {{ s.etudiants }}</p>
+                <p class="small text-muted mb-0">{{ s.listes_validees }} liste(s) de vœux validée(s)</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <p class="text-muted mb-1">Résultats</p>
+                <p class="display-6 mb-1">{{ "Publiés" if s.resultats_publies else "Non publiés" }}</p>
+                <p class="small text-muted mb-0">
+                    <a href="{{ url_for('admin.affectations') }}">Gérer les affectations</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <p class="text-muted mb-1">Livrables déposés</p>
+                <p class="display-6 mb-1">{{ s.livrables_deposes }} / {{ s.livrables_attendus }}</p>
+                <p class="small text-muted mb-0">{{ s.livrables_valides }} validé(s) par les encadrants</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h2 class="h5">Retards de dépôt</h2>
+{% if s.depot_ouvert %}
+    <div class="alert alert-info">
+        La date limite de dépôt n'est pas atteinte ({{ limite.strftime('%d/%m/%Y à %H:%M') }}).
+        Les retards seront listés ici après cette date.
+    </div>
+{% elif s.retards %}
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Étudiant</th>
+                    <th>Sujet</th>
+                    <th>Livrables manquants</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in s.retards %}
+                <tr>
+                    <td>{{ r.etudiant.nom }}</td>
+                    <td>{{ r.sujet.titre }}</td>
+                    <td>{{ r.manquants | join(", ") }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="alert alert-success">Aucun retard : tous les livrables ont été déposés.</div>
+{% endif %}
+{% endblock %}
