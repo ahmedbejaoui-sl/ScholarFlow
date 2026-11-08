@@ -23,16 +23,26 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('main.accueil') }}">Accueil</a>
                     </li>
-                                        {% if current_user.is_authenticated and current_user.role == "enseignant" %}
+
+                    {# NOUVEAU : lien Catalogue, pour tout utilisateur connecté #}
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('subjects.catalogue') }}">Catalogue</a>
+                        </li>
+                    {% endif %}
+
+                    {% if current_user.is_authenticated and current_user.role == "enseignant" %}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('subjects.mes_sujets') }}">Mes sujets</a>
                         </li>
                     {% endif %}
-                                        {% if current_user.is_authenticated and current_user.role == "admin" %}
+
+                    {% if current_user.is_authenticated and current_user.role == "admin" %}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('admin.validation_sujets') }}">Validation des sujets</a>
                         </li>
                     {% endif %}
+
                     {# Les liens des autres rôles seront ajoutés ici au fur et à mesure #}
                 </ul>
 
