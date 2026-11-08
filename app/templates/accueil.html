@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block titre %}Accueil{% endblock %}
+
+{% block contenu %}
+<div class="p-5 mb-4 bg-light border rounded-3">
+    <h1 class="display-6">Gestion des PFE et mini-projets</h1>
+    <p class="lead mb-4">
+        Proposez des sujets, choisissez vos projets par ordre de préférence
+        et déposez vos livrables, le tout au même endroit.
+    </p>
+    {% if current_user.is_authenticated %}
+        <p class="mb-0">Vous êtes connecté en tant que <strong>{{ current_user.nom }}</strong>.</p>
+    {% else %}
+        <a class="btn btn-primary btn-lg" href="{{ url_for('auth.login') }}">Se connecter</a>
+    {% endif %}
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <h2 class="h4">Ce que vous pouvez faire</h2>
+        <ul class="list-unstyled">
+            <li class="mb-2"><strong>Étudiant :</strong> consulter les sujets validés, classer ses vœux, déposer ses livrables.</li>
+            <li class="mb-2"><strong>Enseignant :</strong> proposer des sujets, suivre ses étudiants, valider les travaux déposés.</li>
+            <li class="mb-2"><strong>Commission :</strong> valider les sujets, lancer l'affectation, publier les résultats.</li>
+        </ul>
+    </div>
+
+    <div class="col-md-6">
+        <h2 class="h4">Dates clés</h2>
+        <table class="table table-sm">
+            <tbody>
+                {% for d in dates %}
+                <tr>
+                    <td>{{ d.etape }}</td>
+                    <td class="text-end fw-semibold">{{ d.date }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
