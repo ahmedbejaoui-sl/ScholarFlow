@@ -26,5 +26,7 @@ def create_app(config_class=Config):
 
     # Charge les modèles pour que SQLAlchemy connaisse les tables
     from app import models  # noqa: F401
-
+    # Enregistrement des blueprints (routes)
+    from app.routes.main import main_bp
+    app.register_blueprint(main_bp)
     return app
