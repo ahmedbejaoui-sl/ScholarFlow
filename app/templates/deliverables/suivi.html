@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block titre %}Suivi des livrables{% endblock %}
+
+{% block contenu %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">Suivi des livrables</h1>
+    {% if livrables %}
+        <a class="btn btn-outline-primary" href="{{ url_for('deliverables.archive') }}">
+            Télécharger l'archive (.zip)
+        </a>
+    {% endif %}
+</div>
+
+{% if livrables %}
+<div class="table-responsive">
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>Étudiant</th>
+                <th>Livrable</th>
+                <th>Déposé le</th>
+                <th>Statut</th>
+                <th class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for l in livrables %}
+            <tr>
+                <td>{{ l.etudiant.nom }}</td>
+                <td>{{ types[l.type] }}</td>
+                <td>{{ l.date_depot.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td>
+                    {% if l.valide %}
+                        <span class="badge text-bg-success">Validé</span>
+                    {% else %}
+                        <span class="badge text-bg-warning">En attente</span>
+                    {% endif %}
+                </td>
+                <td class="text-end text-nowrap">
+                    <a class="btn btn-sm btn-outline-primary"
+                       href="{{ url_for('deliverables.telecharger', livrable_id=l.id) }}">Télécharger</a>
+                    {% if not l.valide %}
+                    <form method="POST" class="d-inline"
+                          action="{{ url_for('deliverables.valider', livrable_id=l.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="btn btn-sm btn-success">Valider</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-light border">
+    Aucun livrable déposé pour le moment par vos étudiants.
+</div>
+{% endif %}
+{% endblock %}

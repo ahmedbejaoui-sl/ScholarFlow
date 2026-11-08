@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block titre %}Mes livrables{% endblock %}
+
+{% block contenu %}
+<h1 class="h3 mb-2">Mes livrables</h1>
+<p class="text-muted">
+    Date limite de dépôt : <strong>{{ limite.strftime('%d/%m/%Y à %H:%M') }}</strong>.
+    Formats acceptés : PDF et ZIP, 10 Mo maximum.
+</p>
+
+{% if not affecte %}
+    <div class="alert alert-info">
+        Vous pourrez déposer vos livrables dès la publication de votre affectation.
+    </div>
+{% elif not ouvert %}
+    <div class="alert alert-warning">La date limite est dépassée : les dépôts sont fermés.</div>
+{% endif %}
+
+<div class="table-responsive mb-4">
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>Livrable</th>
+                <th>Dernier dépôt</th>
+                <th>Statut</th>
+                <th class="text-end">Fichier</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for code, libelle, l in etats %}
+            <tr>
+                <td>{{ libelle }}</td>
+                <td>{{ l.date_depot.strftime('%d/%m/%Y %H:%M') if l else "-" }}</td>
+                <td>
+                    {% if not l %}
+                        <span class="badge text-bg-secondary">Non déposé</span>
+                    {% elif l.valide %}
+                        <span class="badge text-bg-success">Validé par l'encadrant</span>
+                    {% else %}
+                        <span class="badge text-bg-warning">En attente de validation</span>
+                    {% endif %}
+                </td>
+                <td class="text-end">
+                    {% if l %}
+                        <a class="btn btn-sm btn-outline-primary"
+                           href="{{ url_for('deliverables.telecharger', livrable_id=l.id) }}">Télécharger</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if affecte and ouvert %}
+<div class="row">
+    <div class="col-lg-6">
+        <h2 class="h5">Déposer un livrable</h2>
+        <p class="small text-muted">
+            Un nouveau dépôt du même type remplace le précédent, sauf s'il a été validé.
+        </p>
+        <form method="POST" enctype="multipart/form-data" novalidate>
+            {{ form.hidden_tag() }}
+
+            <div class="mb-3">
+                {{ form.type_livrable.label(class="form-label") }}
+                {{ form.type_livrable(class="form-select") }}
+            </div>
+
+            <div class="mb-3">
+                {{ form.fichier.label(class="form-label") }}
+                {{ form.fichier(class="form-control" + (" is-invalid" if form.fichier.errors else ""),
+                                accept=".pdf,.zip") }}
+                {% for erreur in form.fichier.errors %}
+                    <div class="invalid-feedback">{{ erreur }}</div>
+                {% endfor %}
+            </div>
+
+            {{ form.submit(class="btn btn-primary") }}
+        </form>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

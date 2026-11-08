@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, TextAreaField, SelectField
 from wtforms.validators import DataRequired, Length, Optional
-
+from flask_wtf.file import FileField, FileRequired, FileAllowed
 
 class LoginForm(FlaskForm):
     """Formulaire de connexion (F2)."""
@@ -36,3 +36,18 @@ class SubjectForm(FlaskForm):
         choices=[("L2", "Licence 2"), ("L3", "Licence 3"), ("M2", "Master 2")],
     )
     submit = SubmitField("Enregistrer le sujet")
+class DeliverableForm(FlaskForm):
+    """Dépôt d'un livrable par un étudiant (F7)."""
+    type_livrable = SelectField(
+        "Type de livrable",
+        choices=[("cahier", "Cahier des charges"),
+                 ("intermediaire", "Rapport intermédiaire"),
+                 ("final", "Rapport final")],
+    )
+    fichier = FileField(
+        "Fichier (.pdf ou .zip, 10 Mo maximum)",
+        validators=[FileRequired(message="Choisissez un fichier."),
+                    FileAllowed(["pdf", "zip"],
+                                message="Seuls les fichiers .pdf et .zip sont acceptés.")],
+    )
+    submit = SubmitField("Déposer")

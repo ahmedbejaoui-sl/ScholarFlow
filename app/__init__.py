@@ -38,6 +38,8 @@ def create_app(config_class=Config):
     app.register_blueprint(admin_bp)
     from app.routes.wishes import wishes_bp
     app.register_blueprint(wishes_bp)
+    from app.routes.deliverables import deliverables_bp
+    app.register_blueprint(deliverables_bp)
     # Pages d'erreur personnalisées
     def page_erreur(code, titre, message):
         return render_template("errors/erreur.html",
@@ -58,5 +60,9 @@ def create_app(config_class=Config):
         db.session.rollback()
         return page_erreur(500, "Erreur du serveur",
                            "Un problème est survenu. Réessayez dans quelques instants.")
-    
+
+    @app.errorhandler(413)
+    def fichier_trop_gros(e):
+        return page_erreur(413, "Fichier trop volumineux",
+                           "La taille maximale d'un fichier est de 10 Mo.")
     return app
