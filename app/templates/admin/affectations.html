@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block titre %}Affectations{% endblock %}
+
+{% block contenu %}
+<h1 class="h3 mb-3">Affectation des sujets</h1>
+
+{% if publie %}
+    <div class="alert alert-success">Les résultats sont publiés. Ils ne peuvent plus être modifiés.</div>
+{% else %}
+    {% if voeux_ouverts %}
+        <div class="alert alert-warning">
+            La saisie des vœux n'est pas encore clôturée : des étudiants peuvent encore modifier leur liste.
+        </div>
+    {% endif %}
+
+    <div class="d-flex flex-wrap gap-2 mb-4">
+        <form method="POST" action="{{ url_for('admin.lancer_affectation') }}"
+              onsubmit="return confirm('Lancer le calcul ? Le résultat précédent non publié (ajustements manuels compris) sera remplacé.');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-primary">Lancer l'affectation</button>
+        </form>
+
+        {% if lignes %}
+        <form method="POST" action="{{ url_for('admin.publier_affectations') }}"
+              onsubmit="return confirm('Publier les résultats ? Cette action est définitive.');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-success">Publier les résultats</button>
+        </form>
+        {% endif %}
+    </div>
+{% endif %}
+
+<h2 class="h5">Affectations ({{ lignes|length }})</h2>
+{% if lignes %}
+<div class="table-responsive mb-4">
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>Étudiant</th>
+                <th>Sujet</th>
+                <th>Encadrant</th>
+                <th>Vœu obtenu</th>
+                {% if not publie %}<th class="text-end">Actions</th>{% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for l in lignes %}
+            <tr>
+                <td>{{ l.affectation.etudiant.nom }}</td>
+                <td>{{ l.affectation.sujet.titre }}</td>
+                <td>{{ l.affectation.sujet.encadrant.nom }}</td>
+                <td>
+                    {% if l.rang %}
+                        {{ l.rang }}{{ "er" if l.rang == 1 else "e" }} choix
+                    {% else %}
+                        <span class="badge text-bg-secondary">Manuel</span>
+                    {% endif %}
+                </td>
+                {% if not publie %}
+                <td class="text-end">
+                    <form method="POST" class="d-inline"
+                          action="{{ url_for('admin.retirer_affectation', affectation_id=l.affectation.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="btn btn-sm btn-outline-danger">Retirer</button>
+                    </form>
+                </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-light border">Aucune affectation pour le moment.</div>
+{% endif %}
+
+<h2 class="h5">Étudiants sans sujet ({{ sans_sujet|length }})</h2>
+{% if sans_sujet %}
+    <ul>
+        {% for e in sans_sujet %}<li>{{ e.nom }}</li>{% endfor %}
+    </ul>
+
+    {% if not publie and libres %}
+    <form method="POST" action="{{ url_for('admin.affectation_manuelle') }}" class="row g-2 mb-4">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="col-md-4">
+            <select name="etudiant_id" class="form-select" aria-label="Étudiant" required>
+                <option value="">Choisir un étudiant</option>
+                {% for e in sans_sujet %}<option value="{{ e.id }}">{{ e.nom }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="col-md-5">
+            <select name="sujet_id" class="form-select" aria-label="Sujet libre" required>
+                <option value="">Choisir un sujet libre</option>
+                {% for s in libres %}<option value="{{ s.id }}">{{ s.titre }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3 d-grid">
+            <button class="btn btn-outline-primary">Affecter manuellement</button>
+        </div>
+    </form>
+    {% elif not publie %}
+        <p class="text-muted">Aucun sujet libre à attribuer.</p>
+    {% endif %}
+{% else %}
+    <p class="text-muted">Tous les étudiants ont un sujet.</p>
+{% endif %}
+{% endblock %}
