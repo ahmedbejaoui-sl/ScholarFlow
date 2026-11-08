@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
+from flask import Flask, render_template
 
 from config import Config
 
@@ -31,4 +32,25 @@ def create_app(config_class=Config):
     app.register_blueprint(main_bp)
     from app.routes.auth import auth_bp
     app.register_blueprint(auth_bp)
+    # Pages d'erreur personnalisées
+    def page_erreur(code, titre, message):
+        return render_template("errors/erreur.html",
+                               code=code, titre=titre, message=message), code
+
+    @app.errorhandler(403)
+    def acces_refuse(e):
+        return page_erreur(403, "Accès refusé",
+                           "Vous n'avez pas les droits nécessaires pour consulter cette page.")
+
+    @app.errorhandler(404)
+    def page_introuvable(e):
+        return page_erreur(404, "Page introuvable",
+                           "L'adresse demandée n'existe pas ou a été déplacée.")
+
+    @app.errorhandler(500)
+    def erreur_serveur(e):
+        db.session.rollback()
+        return page_erreur(500, "Erreur du serveur",
+                           "Un problème est survenu. Réessayez dans quelques instants.")
+    
     return app
