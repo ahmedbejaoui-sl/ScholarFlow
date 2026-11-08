@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
 from flask_login import current_user
+from app.services import assignment_service
 
 from app.decorators import role_required
 from app.services import wish_service as service
@@ -74,3 +75,12 @@ def rouvrir():
 @role_required("etudiant")
 def annuler():
     return _executer(service.annuler, "Votre fiche de vœux a été annulée.")
+@wishes_bp.route("/resultat")
+@role_required("etudiant")
+def resultat():
+    """Résultat de l'affectation et coordonnées de l'encadrant (F6)."""
+    return render_template(
+        "wishes/resultat.html",
+        affectation=assignment_service.affectation_publiee_de(current_user),
+        publie=assignment_service.resultats_publies(),
+    )

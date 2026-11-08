@@ -128,3 +128,19 @@ def publier():
         raise AffectationError("Aucune affectation à publier. Lancez d'abord l'affectation.")
     Assignment.query.update({"publie": True})
     db.session.commit()
+# ---------- Consultation des résultats publiés (F6, F10) ----------
+
+def affectation_publiee_de(etudiant):
+    """Affectation publiée de l'étudiant, ou None."""
+    return Assignment.query.filter_by(etudiant_id=etudiant.id, publie=True).first()
+
+
+def affectations_publiees_de(encadrant):
+    """Étudiants affectés aux sujets de cet encadrant (résultats publiés seulement)."""
+    return (Assignment.query
+            .join(Subject, Assignment.sujet_id == Subject.id)
+            .join(User, Assignment.etudiant_id == User.id)
+            .filter(Subject.encadrant_id == encadrant.id,
+                    Assignment.publie.is_(True))
+            .order_by(Subject.titre, User.nom)
+            .all())

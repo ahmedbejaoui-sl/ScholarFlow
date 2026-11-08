@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block titre %}Mon affectation{% endblock %}
+
+{% block contenu %}
+<h1 class="h3 mb-4">Mon affectation</h1>
+
+{% if affectation %}
+<div class="card">
+    <div class="card-body">
+        <h2 class="h5">{{ affectation.sujet.titre }}</h2>
+        <p class="text-muted small">Niveau {{ affectation.sujet.niveau }}</p>
+        <p>{{ affectation.sujet.resume }}</p>
+
+        {% if affectation.sujet.technologies %}
+            <p><strong>Technologies :</strong> {{ affectation.sujet.technologies }}</p>
+        {% endif %}
+
+        <hr>
+        <h3 class="h6">Votre encadrant</h3>
+        <p class="mb-0">
+            {{ affectation.sujet.encadrant.nom }}<br>
+            <a href="mailto:{{ affectation.sujet.encadrant.email }}">{{ affectation.sujet.encadrant.email }}</a>
+        </p>
+    </div>
+</div>
+
+{% elif publie %}
+<div class="alert alert-warning">
+    Les résultats sont publiés, mais aucun sujet ne vous a été attribué.
+    Rapprochez-vous de la commission.
+</div>
+
+{% else %}
+<div class="alert alert-info">
+    Les résultats ne sont pas encore publiés. Vous serez informé dès leur publication.
+</div>
+{% endif %}
+{% endblock %}

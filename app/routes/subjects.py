@@ -5,6 +5,7 @@ from app import db
 from app.decorators import role_required
 from app.forms import SubjectForm
 from app.models import Subject, User
+from app.services import assignment_service
 
 subjects_bp = Blueprint("subjects", __name__, url_prefix="/subjects")
 
@@ -139,3 +140,12 @@ def detail(sujet_id):
         if current_user.role != "admin" and sujet.encadrant_id != current_user.id:
             abort(404)
     return render_template("subjects/detail.html", sujet=sujet)
+@subjects_bp.route("/mes-etudiants")
+@role_required("enseignant")
+def mes_etudiants():
+    """Étudiants affectés aux sujets de l'enseignant connecté (F10)."""
+    return render_template(
+        "subjects/mes_etudiants.html",
+        lignes=assignment_service.affectations_publiees_de(current_user),
+        publie=assignment_service.resultats_publies(),
+    )

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block titre %}Mes étudiants{% endblock %}
+
+{% block contenu %}
+<h1 class="h3 mb-4">Mes étudiants</h1>
+
+{% if lignes %}
+<div class="table-responsive">
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>Sujet</th>
+                <th>Étudiant</th>
+                <th>E-mail</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for l in lignes %}
+            <tr>
+                <td>{{ l.sujet.titre }}</td>
+                <td>{{ l.etudiant.nom }}</td>
+                <td><a href="mailto:{{ l.etudiant.email }}">{{ l.etudiant.email }}</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% elif publie %}
+<div class="alert alert-light border">Aucun étudiant n'est affecté à vos sujets.</div>
+{% else %}
+<div class="alert alert-info">
+    Les résultats ne sont pas encore publiés. La liste de vos étudiants apparaîtra après la publication.
+</div>
+{% endif %}
+{% endblock %}
