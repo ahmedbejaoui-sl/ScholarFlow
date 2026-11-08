@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block titre %}Validation des sujets{% endblock %}
+
+{% block contenu %}
+<h1 class="h3 mb-4">Sujets en attente de validation</h1>
+
+{% if sujets %}
+    {% for s in sujets %}
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="h5">{{ s.titre }}</h2>
+            <p class="text-muted small mb-3">
+                Proposé par {{ s.encadrant.nom }} · Niveau {{ s.niveau }}
+                {% if s.technologies %} · {{ s.technologies }}{% endif %}
+            </p>
+
+            <p>{{ s.resume }}</p>
+            {% if s.prerequis %}
+                <p class="mb-3"><strong>Prérequis :</strong> {{ s.prerequis }}</p>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('admin.decision_sujet', sujet_id=s.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="mb-3">
+                    <label class="form-label" for="commentaire-{{ s.id }}">
+                        Commentaire (obligatoire pour une modification ou un refus)
+                    </label>
+                    <textarea class="form-control" id="commentaire-{{ s.id }}"
+                              name="commentaire" rows="2"></textarea>
+                </div>
+
+                <button type="submit" name="decision" value="valider"
+                        class="btn btn-success">Valider</button>
+                <button type="submit" name="decision" value="modification"
+                        class="btn btn-warning">Demander une modification</button>
+                <button type="submit" name="decision" value="refuser"
+                        class="btn btn-danger">Refuser</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="alert alert-light border">
+        Aucun sujet en attente. Les nouvelles propositions des enseignants apparaîtront ici.
+    </div>
+{% endif %}
+{% endblock %}

@@ -28,6 +28,11 @@
                             <a class="nav-link" href="{{ url_for('subjects.mes_sujets') }}">Mes sujets</a>
                         </li>
                     {% endif %}
+                                        {% if current_user.is_authenticated and current_user.role == "admin" %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin.validation_sujets') }}">Validation des sujets</a>
+                        </li>
+                    {% endif %}
                     {# Les liens des autres rôles seront ajoutés ici au fur et à mesure #}
                 </ul>
 
